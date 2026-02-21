@@ -4,6 +4,10 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import 'package:table_calendar/table_calendar.dart';
+// PEGA ESTOS AQUÍ:
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -132,6 +136,64 @@ class _MainLayoutState extends State<MainLayout> {
   List<Map<String, dynamic>> _allApps = [];
   DateTime _selectedDay = DateTime.now();
   final TextEditingController _searchController = TextEditingController();
+
+  Future<void> _generarPdfConsejos() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Header(
+                  level: 0, text: "PetConnect Pro - Guia de Cuidados Completa"),
+              pw.SizedBox(height: 20),
+
+              // SECCIÓN: NUTRICIÓN
+              pw.Text("1. Nutricion Saludable",
+                  style: pw.TextStyle(
+                      fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Bullet(text: "Evita alimentos procesados."),
+              pw.Bullet(text: "No des sobras de comida humana."),
+              pw.Bullet(text: "Controla las porciones diarias."),
+              pw.SizedBox(height: 15),
+
+              // SECCIÓN: SALUD PREVENTIVA
+              pw.Text("2. Salud Preventiva",
+                  style: pw.TextStyle(
+                      fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Bullet(text: "Manten las vacunas al dia."),
+              pw.Bullet(text: "Desparasita cada 3 meses."),
+              pw.Bullet(text: "Limpia sus oidos regularmente."),
+              pw.SizedBox(height: 15),
+
+              // SECCIÓN: BIENESTAR MENTAL
+              pw.Text("3. Bienestar Mental",
+                  style: pw.TextStyle(
+                      fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Bullet(text: "Usa juguetes de estimulacion."),
+              pw.Bullet(text: "Dedica tiempo al juego diario."),
+              pw.Bullet(text: "Cambia la ruta de sus paseos."),
+              pw.SizedBox(height: 15),
+
+              pw.Text("4. Higiene y Estética",
+                  style: pw.TextStyle(
+                      fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Bullet(text: "Cepillado diario de pelo."),
+              pw.Bullet(text: "Corte de uñas mensual."),
+              pw.Bullet(text: "Baño cada 3 o 4 semanas."),
+            ],
+          );
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    await Printing.sharePdf(
+        bytes: bytes, filename: 'guia_completa_petconnect.pdf');
+  }
 
   @override
   void initState() {
@@ -411,6 +473,28 @@ class _MainLayoutState extends State<MainLayout> {
             style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
         const Text("Todo para que sea feliz",
             style: TextStyle(color: Colors.grey, fontSize: 16)),
+        const SizedBox(height: 20),
+
+        // ... código anterior (línea 422 a 425)
+        const Text("Todo para que sea feliz",
+            style: TextStyle(color: Colors.grey, fontSize: 16)), // Text
+        const SizedBox(height: 20),
+
+// --- PEGA EL BOTÓN AQUÍ ---
+        ElevatedButton.icon(
+          onPressed: _generarPdfConsejos,
+          icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+          label: const Text("Descargar Guía en PDF"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orangeAccent, // Color acorde a tu app
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+// --------------------------
+
         const SizedBox(height: 20),
         ...tipCategories.map((cat) => Container(
               margin: const EdgeInsets.only(bottom: 20),
